@@ -1,4 +1,8 @@
-// Grundlegende Szene
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import { PointerLockControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/PointerLockControls.js';
+import { STLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/STLLoader.js';
+
+// Szene & Kamera
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x222222);
 
@@ -14,11 +18,10 @@ const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(1, 1, 1);
 scene.add(light);
 
-const ambientLight = new THREE.AmbientLight(0x404040);
-scene.add(ambientLight);
+scene.add(new THREE.AmbientLight(0x404040));
 
-// STL-Modell laden
-const loader = new THREE.STLLoader();
+// STL laden
+const loader = new STLLoader();
 loader.load('model.stl', geometry => {
   const material = new THREE.MeshPhongMaterial({ color: 0xaaaaaa });
   const mesh = new THREE.Mesh(geometry, material);
@@ -26,13 +29,12 @@ loader.load('model.stl', geometry => {
 });
 
 // Pointer Lock Controls
-const controls = new THREE.PointerLockControls(camera, document.body);
+const controls = new PointerLockControls(camera, document.body);
 document.body.addEventListener('click', () => controls.lock());
 
-// Bewegung
 const move = { forward: false, backward: false, left: false, right: false };
 let velocity = new THREE.Vector3();
-const speed = 0.005; // in Metern pro Frame
+const speed = 0.005;
 
 document.addEventListener('keydown', e => {
   switch (e.code) {
@@ -74,7 +76,7 @@ function animate() {
 
 animate();
 
-// Anpassung bei Fenstergröße
+// Resize
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
