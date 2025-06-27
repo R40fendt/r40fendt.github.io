@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { PointerLockControls } from 'three';
-import { STLLoader } from 'three';
+import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 
 // Szene & Kamera
 const scene = new THREE.Scene();
@@ -15,8 +15,8 @@ document.body.appendChild(renderer.domElement);
 
 // Licht
 const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(1, 1, 1);
-scene.add(light);
+light.position.set(0, 0, 0);
+camera.add(light);
 
 scene.add(new THREE.AmbientLight(0x404040));
 
@@ -34,7 +34,7 @@ document.body.addEventListener('click', () => controls.lock());
 
 const move = { forward: false, backward: false, left: false, right: false };
 let velocity = new THREE.Vector3();
-const speed = 0.005;
+const speed = 0.05;
 
 document.addEventListener('keydown', e => {
   switch (e.code) {
