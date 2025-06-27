@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 
-// Szene & Kamera
+// Szene, Kamera, Renderer
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x222222);
 
@@ -13,39 +13,59 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Licht
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(0, 0, 0);
-camera.add(light);
+// Lichtquelle, die der Kamera folgt
+const playerLight = new THREE.PointLight(0xffffff, 1, 5);
+playerLight.position.set(0, 0, 0);
+camera.add(playerLight);
+scene.add(camera);
 
+// Umgebungslampen
+scene.add(new THREE.DirectionalLight(0xffffff, 1).position.set(1, 1, 1));
 scene.add(new THREE.AmbientLight(0x404040));
 
-// STL laden
+// STL-Modell laden und rotieren
 const loader = new STLLoader();
-loader.load('model.stl', geometry => {
+loader.load('/model.stl', geometry => {
   const material = new THREE.MeshPhongMaterial({ color: 0xaaaaaa });
   const mesh = new THREE.Mesh(geometry, material);
+
+  // Drehung z. B. um X-Achse
+  mesh.rotation.x = -Math.PI / 2;
+
   scene.add(mesh);
 });
 
-// Pointer Lock Controls
+// Controls
 const controls = new PointerLockControls(camera, document.body);
 document.body.addEventListener('click', () => controls.lock());
 
-const move = { forward: false, backward: false, left: false, right: false };
-let velocity = new THREE.Vector3();
+// Bewegung
+const move = {
+  forward: false,
+  backward: false,
+  left: false,
+  right: false,
+  up: false,
+  down: false
+};
+
+const velocity = new THREE.Vector3();
 const speed = 0.05;
 
+// Tasteneingaben
 document.addEventListener('keydown', e => {
   switch (e.code) {
     case 'KeyW': move.forward = true; break;
     case 'KeyS': move.backward = true; break;
     case 'KeyA': move.left = true; break;
     case 'KeyD': move.right = true; break;
-    case 'ArrowLeft': controls.getObject().rotation.y += 0.05; break;
+    case 'KeyE': move.up = true; break;
+    case 'KeyQ': move.down = true; break;
+
+    case 'ArrowLeft':  controls.getObject().rotation.y += 0.05; break;
     case 'ArrowRight': controls.getObject().rotation.y -= 0.05; break;
-    case 'ArrowUp': camera.rotation.x -= 0.05; break;
-    case 'ArrowDown': camera.rotation.x += 0.05; break;
+    case 'ArrowUp':    camera.rotation.x -= 0.05; break;
+    case 'ArrowDown':  camera.rotation.x += 0.05; break;
   }
 });
 
@@ -55,6 +75,8 @@ document.addEventListener('keyup', e => {
     case 'KeyS': move.backward = false; break;
     case 'KeyA': move.left = false; break;
     case 'KeyD': move.right = false; break;
+    case 'KeyE': move.up = false; break;
+    case 'KeyQ': move.down = false; break;
   }
 });
 
@@ -70,6 +92,9 @@ function animate() {
 
   controls.moveRight(velocity.x);
   controls.moveForward(velocity.z);
+
+  if (move.up) camera.position.y += speed;
+  if (move.down) camera.position.y -= speed;
 
   renderer.render(scene, camera);
 }
